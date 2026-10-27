@@ -1,0 +1,592 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Platform Capability Overview</title>
+<meta name="description" content="What the H@H web platform and patient mobile app actually do, module by module, for manager reference">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --teal-900:#0A3A3E;
+    --teal-700:#0B6E76;
+    --teal-600:#128A93;
+    --ink:#152A2E;
+    --sub:#55696E;
+    --faint:#8CA0A4;
+    --ground:#F4F7F6;
+    --card:#FFFFFF;
+    --border:#E1E9E8;
+    --border-strong:#CBDAD8;
+    --mono-bg:#EFF4F3;
+
+    --r-physician:#0B6E76;
+    --r-nurse:#2E7D46;
+    --r-coordinator:#6A4FB3;
+    --r-admin:#3F4A52;
+    --r-fleet:#B56A14;
+    --r-patient:#1E6FA8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --teal-900:#BFE9EA; --teal-700:#5FD0CE; --teal-600:#49C2C6;
+      --ink:#EAF3F2; --sub:#A9C0BE; --faint:#6E8886;
+      --ground:#0E1817; --card:#142222; --border:#223332; --border-strong:#2D4341;
+      --mono-bg:#1A2827;
+      --r-physician:#5FD0CE; --r-nurse:#7BD3A3; --r-coordinator:#B9A6F2;
+      --r-admin:#AEBEC2; --r-fleet:#E3B559; --r-patient:#7FB8E8;
+    }
+  }
+  :root[data-theme="dark"]{
+    --teal-900:#BFE9EA; --teal-700:#5FD0CE; --teal-600:#49C2C6;
+    --ink:#EAF3F2; --sub:#A9C0BE; --faint:#6E8886;
+    --ground:#0E1817; --card:#142222; --border:#223332; --border-strong:#2D4341;
+    --mono-bg:#1A2827;
+    --r-physician:#5FD0CE; --r-nurse:#7BD3A3; --r-coordinator:#B9A6F2;
+    --r-admin:#AEBEC2; --r-fleet:#E3B559; --r-patient:#7FB8E8;
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--teal-600);color:#fff;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px 80px;}
+
+  header.top{padding:52px 0 32px;border-bottom:1px solid var(--border);margin-bottom:36px;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--teal-700);font-weight:500;margin-bottom:14px;}
+  h1{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:38px;line-height:1.15;margin:0 0 14px;text-wrap:balance;color:var(--ink);}
+  .dek{font-size:16px;line-height:1.6;color:var(--sub);max-width:640px;margin:0 0 24px;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px 28px;font-size:13px;color:var(--faint);}
+  .meta-row b{color:var(--sub);font-weight:600;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:28px;}
+  .stat{background:var(--card);padding:20px 14px;text-align:center;}
+  .stat .n{font-family:'Source Serif 4',serif;font-size:28px;font-weight:600;color:var(--teal-700);font-variant-numeric:tabular-nums;line-height:1;}
+  .stat .l{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.4;}
+  @media (max-width:600px){ .stats{grid-template-columns:repeat(2,1fr);} }
+
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:44px;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+
+  nav.jump{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:48px;}
+  nav.jump a{font-size:13px;font-weight:500;color:var(--teal-700);text-decoration:none;padding:7px 14px;border:1px solid var(--border-strong);border-radius:999px;background:var(--card);transition:background .15s, color .15s;}
+  nav.jump a:hover{background:var(--teal-700);color:#fff;border-color:var(--teal-700);}
+
+  section.product{margin-bottom:56px;scroll-margin-top:20px;}
+  .product-head{margin-bottom:28px;}
+  .product-head h2{font-family:'Source Serif 4',serif;font-size:27px;font-weight:600;margin:0 0 8px;color:var(--ink);}
+  .product-head p{font-size:14.5px;line-height:1.6;color:var(--sub);margin:0;max-width:680px;}
+
+  .category{margin-bottom:30px;scroll-margin-top:20px;}
+  .category-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--teal-700);}
+  .category-head h3{font-family:'Source Serif 4',serif;font-size:18px;font-weight:600;margin:0;color:var(--ink);}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:680px){ .grid{grid-template-columns:1fr;} }
+
+  .mod{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .mod h4{margin:0 0 6px;font-size:14.5px;font-weight:600;color:var(--ink);}
+  .mod p{margin:0 0 10px;font-size:13px;line-height:1.55;color:var(--sub);}
+  .roles{display:flex;flex-wrap:wrap;gap:5px;}
+  .role{font-size:10.5px;font-weight:600;letter-spacing:0.02em;padding:2px 8px;border-radius:999px;background:var(--mono-bg);white-space:nowrap;}
+
+  code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--mono-bg);color:var(--teal-900);padding:1px 5px;border-radius:4px;}
+
+  .scope-badge{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;color:var(--r-fleet);background:color-mix(in srgb, var(--r-fleet) 12%, transparent);border:1px solid color-mix(in srgb, var(--r-fleet) 45%, transparent);padding:4px 11px;border-radius:999px;margin-bottom:14px;}
+  .scope-badge .dot2{width:6px;height:6px;border-radius:50%;background:var(--r-fleet);}
+
+  .mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:18px 0 22px;}
+  .mini-stat{background:var(--card);padding:14px 12px;text-align:center;}
+  .mini-stat .n{font-family:'Source Serif 4',serif;font-size:22px;font-weight:600;color:var(--r-fleet);line-height:1;}
+  .mini-stat .l{font-size:10.5px;color:var(--sub);margin-top:6px;line-height:1.35;}
+  @media (max-width:600px){ .mini-stats{grid-template-columns:1fr 1fr;} }
+
+  .gap-callout{background:var(--card);border:1px solid var(--border-strong);border-left:3px solid var(--r-fleet);border-radius:10px;padding:16px 20px;font-size:13px;line-height:1.6;color:var(--sub);margin-bottom:26px;}
+  .gap-callout b{color:var(--ink);}
+
+  .access-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+  .acc{--rc:var(--sub);font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--rc);color:var(--rc);white-space:nowrap;}
+  .acc.partial{opacity:.68;border-style:dashed;}
+  .acc.none{opacity:.35;text-decoration:line-through;}
+  .acc-legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:22px;font-size:11.5px;color:var(--sub);}
+  .acc-legend span{display:inline-flex;align-items:center;gap:5px;}
+
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border);font-size:12.5px;color:var(--faint);line-height:1.6;}
+
+  @media (max-width:600px){ h1{font-size:28px;} }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">Hospital at Home &middot; Platform Overview</div>
+    <h1>What the Web Platform and Mobile App Do</h1>
+    <p class="dek">A module-by-module capability map of the two live products — the clinical/admin web platform used by staff, and the Android app used by patients — for manager reference.</p>
+    <div class="meta-row">
+      <span><b>As of:</b> 27 Oct 2026</span>
+      <span><b>Source:</b> current production codebase</span>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="n">22</div><div class="l">Web platform modules</div></div>
+    <div class="stat"><div class="n">12</div><div class="l">Mobile app feature areas</div></div>
+    <div class="stat"><div class="n">5</div><div class="l">Staff roles served</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Unified patient app</div></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="dot" style="background:var(--r-physician)"></span>Physician</div>
+    <div class="legend-item"><span class="dot" style="background:var(--r-nurse)"></span>Nurse</div>
+    <div class="legend-item"><span class="dot" style="background:var(--r-coordinator)"></span>Coordinator</div>
+    <div class="legend-item"><span class="dot" style="background:var(--r-admin)"></span>Admin</div>
+    <div class="legend-item"><span class="dot" style="background:var(--r-fleet)"></span>Fleet / Field Tech</div>
+  </div>
+
+  <nav class="jump">
+    <a href="#web">Web Platform</a>
+    <a href="#mobile">Patient Mobile App</a>
+    <a href="#field">Field / Provider App — Next Scope</a>
+  </nav>
+
+  <!-- ===================== WEB PLATFORM ===================== -->
+  <section class="product" id="web">
+    <div class="product-head">
+      <h2>Web Platform</h2>
+      <p>The clinical and operational system of record — used by physicians, nurses, care coordinators, fleet dispatchers, and admins to run the entire home-hospital program end to end: intake, care delivery, monitoring, scheduling, and administration.</p>
+    </div>
+
+    <div class="category" id="w-care">
+      <div class="category-head"><h3>Patient Intake &amp; Care Planning</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Onboarding</h4>
+          <p>Create and track new patient onboarding requests through a dashboard and request queue, attach intake documents, and move a referral through to admission.</p>
+          <div class="roles"><span class="role" style="color:var(--r-coordinator)">Coordinator</span><span class="role" style="color:var(--r-admin)">Admin</span><span class="role" style="color:var(--r-nurse)">Nurse</span></div>
+        </div>
+        <div class="mod">
+          <h4>Patients &amp; Clinical Charting</h4>
+          <p>Browse the patient roster and open a full clinical profile — allergies &amp; vitals, documents, service orders, thresholds, adherence history, and an active-tasks worklist.</p>
+          <div class="roles"><span class="role" style="color:var(--r-physician)">Physician</span><span class="role" style="color:var(--r-nurse)">Nurse</span><span class="role" style="color:var(--r-coordinator)">Coordinator</span></div>
+        </div>
+        <div class="mod">
+          <h4>Care Plans</h4>
+          <p>Build and edit a patient's care plan, assign the care team, review version history, and manage plans awaiting approval in a review queue.</p>
+          <div class="roles"><span class="role" style="color:var(--r-physician)">Physician</span><span class="role" style="color:var(--r-nurse)">Nurse</span></div>
+        </div>
+        <div class="mod">
+          <h4>Protocols</h4>
+          <p>Design clinical decision-tree protocols with a visual node-based editor, standardizing how staff respond to specific clinical situations.</p>
+          <div class="roles"><span class="role" style="color:var(--r-physician)">Physician</span><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="w-rpm">
+      <div class="category-head"><h3>Remote Monitoring &amp; Alerts</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>RPM — Remote Patient Monitoring</h4>
+          <p>Dashboard of all monitored patients and their live vitals, per-patient trend detail, configurable alert thresholds, an alert queue, and a log of clinical interventions taken.</p>
+          <div class="roles"><span class="role" style="color:var(--r-nurse)">Nurse</span><span class="role" style="color:var(--r-physician)">Physician</span><span class="role" style="color:var(--r-coordinator)">Coordinator</span></div>
+        </div>
+        <div class="mod">
+          <h4>Critical Alerts / SOS</h4>
+          <p>Receive, log, and review patient SOS escalations and critical-reading alerts as an active-case follow-up queue, so nothing urgent gets missed.</p>
+          <div class="roles"><span class="role" style="color:var(--r-nurse)">Nurse</span><span class="role" style="color:var(--r-physician)">Physician</span><span class="role" style="color:var(--r-coordinator)">Coordinator</span><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="w-comm">
+      <div class="category-head"><h3>Communication &amp; Virtual Care</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Teleconsultation</h4>
+          <p>Schedule and join virtual video visits with patients directly from the platform, including instant/ad-hoc calls.</p>
+          <div class="roles"><span class="role" style="color:var(--r-physician)">Physician</span><span class="role" style="color:var(--r-nurse)">Nurse</span></div>
+        </div>
+        <div class="mod">
+          <h4>Hotline &amp; Callbacks</h4>
+          <p>Log live hotline calls, manage patient-initiated callback requests with an escalation path and SLA timers, and run a health-check questionnaire during the call.</p>
+          <div class="roles"><span class="role" style="color:var(--r-coordinator)">Coordinator</span><span class="role" style="color:var(--r-nurse)">Nurse</span><span class="role" style="color:var(--r-physician)">Physician</span></div>
+        </div>
+        <div class="mod">
+          <h4>Availability</h4>
+          <p>Clinicians set their own working-hour slots; staff view everyone's availability on a shared board when scheduling visits or consults.</p>
+          <div class="roles"><span class="role" style="color:var(--r-physician)">Physician</span><span class="role" style="color:var(--r-nurse)">Nurse</span><span class="role" style="color:var(--r-coordinator)">Coordinator</span></div>
+        </div>
+        <div class="mod">
+          <h4>Care Teams</h4>
+          <p>Assign which clinicians sit on a given patient's care team — the roster patients see and that drives who gets notified for that patient.</p>
+          <div class="roles"><span class="role" style="color:var(--r-coordinator)">Coordinator</span><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="w-field">
+      <div class="category-head"><h3>Field Operations &amp; Dispatch</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Fleet &amp; Visit Scheduling</h4>
+          <p>A dispatch dashboard with a live map of clinicians/vehicles, auto-scheduling of home visits, a dispatcher worklist, and each field clinician's own route/visit list, with overrun alerting when a visit runs long.</p>
+          <div class="roles"><span class="role" style="color:var(--r-fleet)">Fleet / Field Tech</span><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="w-oversight">
+      <div class="category-head"><h3>Oversight &amp; Reporting</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Command Center</h4>
+          <p>A cross-functional operational dashboard combining alert, visit, and RPM status widgets into one live oversight view.</p>
+          <div class="roles"><span class="role" style="color:var(--r-admin)">Admin</span><span class="role" style="color:var(--r-coordinator)">Coordinator</span></div>
+        </div>
+        <div class="mod">
+          <h4>Reporting &amp; Performance</h4>
+          <p>Generate operational and clinical reports, and track staff performance metrics.</p>
+          <div class="roles"><span class="role" style="color:var(--r-admin)">Admin</span><span class="role" style="color:var(--r-coordinator)">Coordinator</span></div>
+        </div>
+        <div class="mod">
+          <h4>Audit Trail</h4>
+          <p>A searchable log of system actions, kept for compliance review.</p>
+          <div class="roles"><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="w-admin">
+      <div class="category-head"><h3>Platform Administration</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>User &amp; Access Management</h4>
+          <p>Create and manage staff accounts, define roles, and configure fine-grained access privileges across the platform.</p>
+          <div class="roles"><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+        <div class="mod">
+          <h4>Reference Data</h4>
+          <p>Maintain the drug formulary, lab/test catalog, service catalog, facility list, and other shared lookup tables used platform-wide.</p>
+          <div class="roles"><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+        <div class="mod">
+          <h4>Forms &amp; Mobile App Content</h4>
+          <p>Design custom clinical forms, and directly edit the content/pages the patient mobile app displays — admin-controlled without a code release.</p>
+          <div class="roles"><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+        <div class="mod">
+          <h4>Branding &amp; FAQ</h4>
+          <p>Configure white-label branding and manage the FAQ content shown to patients and staff.</p>
+          <div class="roles"><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+        <div class="mod">
+          <h4>SMS Console</h4>
+          <p>Manage SMS templates and send patient messaging campaigns or alerts directly from the platform.</p>
+          <div class="roles"><span class="role" style="color:var(--r-coordinator)">Coordinator</span><span class="role" style="color:var(--r-admin)">Admin</span></div>
+        </div>
+        <div class="mod">
+          <h4>Support, Profile &amp; Login</h4>
+          <p>Internal staff support/ticketing, each user's own profile settings, and platform authentication.</p>
+          <div class="roles"><span class="role" style="color:var(--r-admin)">All staff</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PATIENT MOBILE APP ===================== -->
+  <section class="product" id="mobile">
+    <div class="product-head">
+      <h2>Patient Mobile App</h2>
+      <p>The Android app (Jetpack Compose) patients use at home to stay connected to their care team — tracking vitals and medications, pairing monitoring devices, joining virtual visits, and reaching their care team directly.</p>
+    </div>
+
+    <div class="category" id="m-home">
+      <div class="category-head"><h3>Home &amp; Getting Started</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Login &amp; Home Dashboard</h4>
+          <p>Secure login (password or biometric), landing on a home screen with a weekly calendar strip, a getting-started checklist, and summary cards for upcoming appointments and medication reminders.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+        <div class="mod">
+          <h4>Quick Actions</h4>
+          <p>A shortcut menu on the home screen jumping straight to vitals, appointments, devices, or reminders.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="m-care">
+      <div class="category-head"><h3>Appointments &amp; Virtual Care</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Appointments &amp; Home Visits</h4>
+          <p>View, reschedule, and review upcoming home visits, with a post-visit summary and report preview.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+        <div class="mod">
+          <h4>Teleconsultation</h4>
+          <p>Browse available physicians and book a virtual visit, join the live video call, rate the physician afterward, and view past/upcoming consult history.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="m-vitals">
+      <div class="category-head"><h3>Health Monitoring &amp; Devices</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Device Pairing</h4>
+          <p>Scan for and pair Bluetooth medical devices, including a digital otoscope, and manage currently connected devices.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+        <div class="mod">
+          <h4>Measure Vitals</h4>
+          <p>Capture vitals readings, plus record/annotate digital stethoscope audio and otoscope images/video for the care team to review.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="m-meds">
+      <div class="category-head"><h3>Medications &amp; Reminders</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Medications</h4>
+          <p>View the full medication schedule and manage medication reminders, including cancelled/ended ones shown clearly for the record.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+        <div class="mod">
+          <h4>Reminders &amp; Notifications</h4>
+          <p>Create reminders for medications, vitals readings, or general tasks, and see a unified notification feed for app and clinical alerts.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="m-support">
+      <div class="category-head"><h3>Care Team &amp; Support</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Callbacks / Nurse Hotline</h4>
+          <p>Request a callback from the care team, track its status, complete a health-check questionnaire, and review a call summary afterward.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+        <div class="mod">
+          <h4>Care Team &amp; Customer Support</h4>
+          <p>View the assigned care team and message them directly, or reach customer support via chat or email.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="m-profile">
+      <div class="category-head"><h3>Profile &amp; Account</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Personal Settings</h4>
+          <p>Edit personal information, manage documents, choose which vitals show on the home screen, review tasks/reminders, rate the service, and change password.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+        <div class="mod">
+          <h4>Help &amp; Legal</h4>
+          <p>Terms &amp; conditions, About, and FAQ content, plus general app settings.</p>
+          <div class="roles"><span class="role" style="color:var(--r-patient)">Patient</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FIELD / PROVIDER APP (NEXT SCOPE) ===================== -->
+  <section class="product" id="field">
+    <div class="product-head">
+      <span class="scope-badge"><span class="dot2"></span>Next scope — not yet built</span>
+      <h2>Field / Provider App</h2>
+      <p>A proposed companion mobile app for the people <em>delivering</em> care — admins, physicians, nurses, technicians, and coordinators — sitting alongside the existing patient app. Access to every module would be admin-assignable per role or per person, the same way Roles &amp; Permissions already works on the web platform today.</p>
+    </div>
+
+    <div class="mini-stats">
+      <div class="mini-stat"><div class="n">12</div><div class="l">Modules mapped</div></div>
+      <div class="mini-stat"><div class="n">5</div><div class="l">Staff roles, incl. Admin</div></div>
+      <div class="mini-stat"><div class="n">1</div><div class="l">Real backend gap</div></div>
+    </div>
+
+    <div class="gap-callout">
+      <b>Backend readiness:</b> almost entirely built already. Every module below is grounded against a live, existing endpoint (<code>routers/fleet.py</code>, <code>rpm.py</code>, <code>care_tasks.py</code>, <code>patients.py</code>, <code>performance.py</code>, <code>roles.py</code>, <code>privileges.py</code>, <code>command_center.py</code>) — including the admin-assignable permission model itself. The only real gap is a <code>/mobile/staff*</code> auth namespace plus one new role-scoped dashboard endpoint; everything else this app needs is already live.
+    </div>
+
+    <div class="acc-legend">
+      <span><span class="acc" style="--rc:var(--sub)">Full</span> full access</span>
+      <span><span class="acc partial" style="--rc:var(--sub)">Partial</span> read-only / narrower view</span>
+      <span><span class="acc none" style="--rc:var(--sub)">None</span> not applicable to that role</span>
+      <span>Admin always has full access to everything (not shown per-module)</span>
+    </div>
+
+    <div class="category" id="f-daily">
+      <div class="category-head"><h3>Daily Work</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Home Dashboard</h4>
+          <p>Today at a glance: visits remaining, pending callbacks, overdue reminders, and SLA flags — shaped per role, so a coordinator sees team load while a physician sees their own panel.</p>
+          <code>new: /mobile/staff/dashboard (gap)</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc full" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc full" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+        <div class="mod">
+          <h4>Notifications</h4>
+          <p>Push and in-app feed for new assignments, escalations, callback requests, and SLA breaches nearing their deadline.</p>
+          <code>push_service &middot; in-app feed</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc full" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc full" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+        <div class="mod">
+          <h4>Profile &amp; Settings</h4>
+          <p>Role badge, facility assignment, license info, language (EN/AR), and notification preferences — the same shape as the patient app's own profile screen.</p>
+          <code>/auth/me &middot; staff JWT</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc full" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc full" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="f-care">
+      <div class="category-head"><h3>Patient Care</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Patient Management</h4>
+          <p>Assigned-patient list, chart/timeline, and discharge/transfer actions. Technicians get a read-only roster scoped to the visits on their route.</p>
+          <code>/patients</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc partial" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc full" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+        <div class="mod">
+          <h4>Vitals &amp; RPM</h4>
+          <p>Review device and manual vitals per patient, see trend charts, and acknowledge/resolve RPM alerts — not part of the technician or coordinator toolset.</p>
+          <code>/rpm/patients/{id}/vitals &middot; alerts</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc none" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc none" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+        <div class="mod">
+          <h4>Reminders &amp; Care Tasks</h4>
+          <p>Medication, task, and reading schedules per patient — mark done, reopen, see what's missed today. Coordinators get an oversight view across the team's caseload.</p>
+          <code>/care-tasks &middot; /care-tasks/missed-today</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc none" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc partial" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+        <div class="mod">
+          <h4>Onboarding Tasks</h4>
+          <p>Each role's slice of a new patient's intake queue: physicians do medical review, coordinators handle operational review and team assignment, technicians do the in-home visit assessment.</p>
+          <code>/onboarding (role-scoped stages)</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc none" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc full" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc full" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="f-ops">
+      <div class="category-head"><h3>Field Operations</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Home Visits</h4>
+          <p>Visit queue with a full status lifecycle (assigned → en route → arrived → in progress → completed), notes, and reschedule. Coordinators see the assignment/dispatch view instead of their own queue.</p>
+          <code>/fleet &middot; /fleet/my-route</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc full" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc partial" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+        <div class="mod">
+          <h4>Live Location Tracking</h4>
+          <p>Field roles start a GPS session on arrival (geofence, breadcrumb pings, auto away-from-site alert); coordinators watch the live fleet map instead of broadcasting their own location.</p>
+          <code>/visit-tracking/start &middot; /fleet/map</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc full" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc partial" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="f-comm">
+      <div class="category-head"><h3>Communication &amp; Triage</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Callback Requests</h4>
+          <p>Inbox of patient callback requests routed to this person's role, with urgency, accept/triage, and escalation — the staff-side mirror of the patient app's request flow.</p>
+          <code>/callbacks &middot; permission: callbacks.receive</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc none" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc full" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+        <div class="mod">
+          <h4>Hotline &amp; Triage</h4>
+          <p>Nurse-hotline session workflow — assess, apply protocol, record decision, escalate, close. This permission set belongs specifically to the nurse hotline role.</p>
+          <code>hotline.* permissions</code>
+          <div class="access-grid">
+            <span class="acc none" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc none" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc none" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category" id="f-perf">
+      <div class="category-head"><h3>Performance</h3></div>
+      <div class="grid">
+        <div class="mod">
+          <h4>Performance &amp; Ratings</h4>
+          <p>A clinician's own patient-feedback score and comments — the endpoint already exists and was built with this exact app in mind.</p>
+          <code>/performance/me</code>
+          <div class="access-grid">
+            <span class="acc full" style="--rc:var(--r-physician)">Physician</span>
+            <span class="acc full" style="--rc:var(--r-nurse)">Nurse</span>
+            <span class="acc none" style="--rc:var(--r-fleet)">Technician</span>
+            <span class="acc none" style="--rc:var(--r-coordinator)">Coordinator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Web Platform and Patient Mobile App sections compiled directly from the current production codebase — page, screen, and endpoint names were verified against the repository rather than assumed. The Field / Provider App section is proposed next-scope work, not yet built, grounded against existing backend endpoints. Covers capability only; for recent defect fixes, see the companion bug-fix brief.
+  </footer>
+
+</div>
+
+</body></html>
